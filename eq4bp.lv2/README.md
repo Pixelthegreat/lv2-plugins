@@ -6,4 +6,4 @@ This is a 4-band parametric equalizer in which each band has a controllable freq
 - Band 3: A bell / peak filter defaulted at 1 kHz
 - Band 4: A high-shelf filter defaulted at 3 kHz
 
-It should be noted that although each band has a configurable width, the width parameter only affects bell filters (bands 1 and 2.)
+It should be noted that although each band has a configurable width, the width parameter only affects bell filters (bands 2 and 3.)
