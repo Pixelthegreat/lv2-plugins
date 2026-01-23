@@ -4,7 +4,7 @@ These are some of my LV2 audio plugins and effects. The recommended programs to 
 | Name       | Short Description           | Full Description                                                                                              |
 |------------|-----------------------------|---------------------------------------------------------------------------------------------------------------|
 | bitcrusher | Bitcrusher                  | A bitcrusher that simulates a low quality resampling algorithm and bit rate quantization.                     |
-| eg4bp      | 4-Band Parametric Equalizer | A parametric equalizer with 4 bands: One low-shelf filter, two bell / peak filters and one high-shelf filter. |
+| eq4bp      | 4-Band Parametric Equalizer | A parametric equalizer with 4 bands: One low-shelf filter, two bell / peak filters and one high-shelf filter. |
 
 # Building and Installing
 Each plugin has its own subdirectory with the code and plugin descriptions. A Makefile is provided at the root to build all of them, though each project has its own indepedent Makefile if you need to build them separately.
