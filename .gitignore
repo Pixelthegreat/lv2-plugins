@@ -1,0 +1,7 @@
+# Build files #
+**.o
+**.so
+
+# Miscellaneous #
+**.swp
+/notes

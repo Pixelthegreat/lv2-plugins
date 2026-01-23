@@ -1,0 +1,173 @@
+@prefix doap:  <http://usefulinc.com/ns/doap#> .
+@prefix lv2:   <http://lv2plug.in/ns/lv2core#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix units: <http://lv2plug.in/ns/extensions/units#> .
+
+<http://fanfavoritessofar.com/eq4bp>
+	a lv2:Plugin ,
+		lv2:AmplifierPlugin ;
+	lv2:project <http://fanfavoritessofar.com> ;
+	doap:name "4-Band Parametric Equalizer" ;
+	lv2:optionalFeature lv2:hardRTCapable ;
+	lv2:port [
+		a lv2:AudioPort ,
+			lv2:InputPort ;
+		lv2:index 0 ;
+		lv2:symbol "leftInput" ;
+		lv2:name "Left Input"
+	] , [
+		a lv2:AudioPort ,
+			lv2:InputPort ;
+		lv2:index 1 ;
+		lv2:symbol "rightInput" ;
+		lv2:name "Right Input"
+	] , [
+		a lv2:AudioPort ,
+			lv2:OutputPort ;
+		lv2:index 2 ;
+		lv2:symbol "leftOutput" ;
+		lv2:name "Left Output"
+	] , [
+		a lv2:AudioPort ,
+			lv2:OutputPort ;
+		lv2:index 3 ;
+		lv2:symbol "rightOutput" ;
+		lv2:name "Right Output"
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 4 ;
+		lv2:symbol "filter0Frequency" ;
+		lv2:name "Frequency (Filter 0)" ;
+		lv2:default 300.0 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 20000.0 ;
+		units:unit units:hz ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 5 ;
+		lv2:symbol "filter0Width" ;
+		lv2:name "Width / Q (Filter 0)" ;
+		lv2:default 0.707 ;
+		lv2:minimum 0.1 ;
+		lv2:maximum 2.0 ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 6 ;
+		lv2:symbol "filter0Gain" ;
+		lv2:name "Gain (Filter 0)" ;
+		lv2:default 0.0 ;
+		lv2:minimum -12.0 ;
+		lv2:maximum 12.0 ;
+		units:unit units:db ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 7 ;
+		lv2:symbol "filter1Frequency" ;
+		lv2:name "Frequency (Filter 1)" ;
+		lv2:default 500.0 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 20000.0 ;
+		units:unit units:hz ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 8 ;
+		lv2:symbol "filter1Width" ;
+		lv2:name "Width / Q (Filter 1)" ;
+		lv2:default 0.707 ;
+		lv2:minimum 0.1 ;
+		lv2:maximum 2.0 ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 9 ;
+		lv2:symbol "filter1Gain" ;
+		lv2:name "Gain (Filter 1)" ;
+		lv2:default 0.0 ;
+		lv2:minimum -12.0 ;
+		lv2:maximum 12.0 ;
+		units:unit units:db ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 10 ;
+		lv2:symbol "filter2Frequency" ;
+		lv2:name "Frequency (Filter 2)" ;
+		lv2:default 1000.0 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 20000.0 ;
+		units:unit units:hz ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 11 ;
+		lv2:symbol "filter2Width" ;
+		lv2:name "Width / Q (Filter 2)" ;
+		lv2:default 0.707 ;
+		lv2:minimum 0.1 ;
+		lv2:maximum 2.0 ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 12 ;
+		lv2:symbol "filter2Gain" ;
+		lv2:name "Gain (Filter 2)" ;
+		lv2:default 0.0 ;
+		lv2:minimum -12.0 ;
+		lv2:maximum 12.0 ;
+		units:unit units:db ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 13 ;
+		lv2:symbol "filter3Frequency" ;
+		lv2:name "Frequency (Filter 3)" ;
+		lv2:default 3000.0 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 20000.0 ;
+		units:unit units:hz ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 14 ;
+		lv2:symbol "filter3Width" ;
+		lv2:name "Width / Q (Filter 3)" ;
+		lv2:default 0.707 ;
+		lv2:minimum 0.1 ;
+		lv2:maximum 2.0 ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 15 ;
+		lv2:symbol "filter3Gain" ;
+		lv2:name "Gain (Filter 3)" ;
+		lv2:default 0.0 ;
+		lv2:minimum -12.0 ;
+		lv2:maximum 12.0 ;
+		units:unit units:db ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 16 ;
+		lv2:symbol "inputGain" ;
+		lv2:name "Input Gain" ;
+		lv2:default 0.0 ;
+		lv2:minimum -12.0 ;
+		lv2:maximum 12.0 ;
+		units:unit units:db ;
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 17 ;
+		lv2:symbol "outputGain" ;
+		lv2:name "Output Gain" ;
+		lv2:default 0.0 ;
+		lv2:minimum -12.0 ;
+		lv2:maximum 12.0 ;
+		units:unit units:db ;
+	] .
