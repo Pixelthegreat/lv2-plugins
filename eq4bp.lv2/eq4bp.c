@@ -24,6 +24,10 @@ struct biquad_filter {
 	float z1[2], z2[2];
 };
 
+/*
+ * Some of the code for this function was derived from:
+ * https://www.earlevel.com/main/2012/11/26/biquad-c-source-code
+ */
 static void biquad_filter_set_parameters(struct biquad_filter *filter,
 					 float sample_rate,
 					 float frequency,
