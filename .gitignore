@@ -1,6 +1,7 @@
 # Build files #
 **.o
 **.so
+**.a
 
 # Miscellaneous #
 **.swp

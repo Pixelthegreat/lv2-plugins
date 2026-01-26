@@ -1,15 +1,23 @@
-PLUGINS=bitcrusher eq4bp
+PLUGINS=bitcrusher delay eq4bp
 CLEAN_PLUGINS=$(foreach plugin,$(PLUGINS),clean_$(plugin))
 
-.PHONY: $(PLUGINS) $(CLEAN_PLUGINS)
+.PHONY: ui clean_ui $(PLUGINS) $(CLEAN_PLUGINS)
 
-all: $(PLUGINS)
+all: ui $(PLUGINS)
 
 $(PLUGINS):
 	@echo == Building $@ ==
 	@cd $@.lv2 && $(MAKE) -s
 
-clean: $(CLEAN_PLUGINS)
+ui:
+	@echo == Building ui ==
+	@cd ui && $(MAKE) -s
+
+clean: clean_ui $(CLEAN_PLUGINS)
+
+clean_ui:
+	@echo == Cleaning ui ==
+	@cd ui && $(MAKE) -s clean
 
 $(CLEAN_PLUGINS):
 	@echo == Cleaning $(@:clean_%=%) ==

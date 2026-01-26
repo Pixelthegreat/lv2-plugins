@@ -1,0 +1,5 @@
+@prefix ui: <http://lv2plug.in/ns/extensions/ui#> .
+
+<http://fanfavoritessofar.com/bitcrusher#ui-x11>
+	a ui:X11UI ;
+	ui:requiredFeature ui:makeResident .

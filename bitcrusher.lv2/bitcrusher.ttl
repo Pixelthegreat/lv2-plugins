@@ -2,6 +2,7 @@
 @prefix lv2:   <http://lv2plug.in/ns/lv2core#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ui:    <http://lv2plug.in/ns/extensions/ui#> .
 
 <http://fanfavoritessofar.com/bitcrusher>
 	a lv2:Plugin ,
@@ -9,6 +10,7 @@
 	lv2:project <http://fanfavoritessofar.com> ;
 	doap:name "Simple Bitcrusher" ;
 	lv2:optionalFeature lv2:hardRTCapable ;
+	ui:ui <http://fanfavoritessofar.com/bitcrusher#ui-x11> ;
 	lv2:port [
 		a lv2:InputPort ,
 			lv2:ControlPort ;
