@@ -191,11 +191,33 @@ ui_element_ops_t ui_element_ops_box = {
 /* separator element */
 static void separator_calculate_size(ui_element_t *element) {
 
-	element->width = 1;
-	element->height = 1;
+	ui_separator_t *separator = UI_SEPARATOR(element);
+
+	switch (separator->orientation) {
+
+		/* vertical */
+		case UI_ORIENTATION_VERTICAL:
+			element->width = 1;
+			element->height = separator->length;
+			break;
+
+		/* horizontal */
+		case UI_ORIENTATION_HORIZONTAL:
+			element->width = separator->length;
+			element->height = 1;
+			break;
+	}
 }
 
 static void separator_draw(ui_element_t *element, ui_window_t *window) {
+
+	set_color(window->cr, UI_COLOR_INDEX_DARK3);
+	cairo_rectangle(window->cr,
+			(double)element->absx,
+			(double)element->absy,
+			(double)element->width,
+			(double)element->height);
+	cairo_fill(window->cr);
 }
 
 ui_element_ops_t ui_element_ops_separator = {
@@ -672,12 +694,15 @@ extern void ui_window_update(ui_window_t *window) {
 extern void ui_window_draw(ui_window_t *window) {
 
 	cairo_save(window->cr);
+	cairo_push_group(window->cr);
 
 	set_color(window->cr, UI_COLOR_INDEX_DARK0);
 	cairo_paint(window->cr);
 
 	ui_element_draw(window->root_element, window);
 
+	cairo_pop_group_to_source(window->cr);
+	cairo_paint(window->cr);
 	cairo_restore(window->cr);
 	cairo_surface_flush(window->surface);
 }

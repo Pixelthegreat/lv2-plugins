@@ -146,14 +146,16 @@ extern ui_element_ops_t ui_element_ops_box;
 typedef struct ui_separator {
 	ui_element_t base;
 	ui_orientation_t orientation;
+	int length;
 } ui_separator_t;
 
 extern ui_element_ops_t ui_element_ops_separator;
 
 #define UI_SEPARATOR(p) ((ui_separator_t *)(p))
-#define UI_SEPARATOR_INIT(p_orientation, ...) (ui_element_t *)(ui_separator_t []){{\
+#define UI_SEPARATOR_INIT(p_orientation, p_length, ...) (ui_element_t *)(ui_separator_t []){{\
 	.base = UI_ELEMENT_INIT(&ui_element_ops_separator),\
 	.orientation = (p_orientation),\
+	.length = (p_length),\
 	__VA_ARGS__\
 }}
 
