@@ -67,6 +67,7 @@ typedef struct ui_element_ops {
 	bool (*process_event)(struct ui_element *element,
 			      struct ui_event *event,
 			      struct ui_window *window);
+	void (*remote_set_value)(struct ui_element *element, float value);
 	void (*draw)(struct ui_element *element, struct ui_window *window);
 } ui_element_ops_t;
 
@@ -77,6 +78,7 @@ typedef struct ui_element {
 	int x, y;
 	int absx, absy; /* absolute position */
 	int width, height;
+	int port; /* associated plugin port */
 } ui_element_t;
 
 #define UI_ELEMENT(p) ((ui_element_t *)(p))
@@ -87,6 +89,7 @@ typedef struct ui_element {
 	.x = 0, .y = 0,\
 	.absx = 0, .absy = 0,\
 	.width = 0, .height = 0,\
+	.port = -1,\
 	__VA_ARGS__\
 }
 #define UI_ELEMENT_END (ui_element_t []){{.ops = NULL}}
@@ -99,6 +102,7 @@ extern void ui_element_calculate_position(ui_element_t *element, ui_element_t *p
 extern bool ui_element_process_event(ui_element_t *element,
 	       			     struct ui_event *event,
 				     struct ui_window *window);
+extern void ui_element_remote_set_value(ui_element_t *element, float value);
 extern void ui_element_draw(ui_element_t *element, struct ui_window *window);
 
 extern bool ui_element_contains(ui_element_t *element, int x, int y);
@@ -291,6 +295,8 @@ extern ui_backend_t ui_backend_x11;
 /*
  * UI window
  */
+#define UI_WINDOW_MAX_PORTS 64
+
 typedef struct ui_window {
 	size_t width, height;
 	void *backend_data;
@@ -301,6 +307,9 @@ typedef struct ui_window {
 	bool draw_window;
 	ui_element_t *focused;
 	int x, y;
+	LV2UI_Write_Function write_function;
+	LV2UI_Controller controller;
+	ui_element_t *ports[UI_WINDOW_MAX_PORTS];
 } ui_window_t;
 
 /*
@@ -310,10 +319,14 @@ extern ui_window_t *ui_window_new_direct(ui_backend_t *backend, uintptr_t parent
 					 size_t width, size_t height);
 
 extern ui_window_t *ui_window_new_features(const char *uri,
+					   LV2UI_Controller controller,
+					   LV2UI_Write_Function write_function,
 					   const LV2_Feature *const *features,
 					   size_t width, size_t height);
 
 extern ui_window_t *ui_window_new_elements(const char *uri,
+					   LV2UI_Controller controller,
+					   LV2UI_Write_Function write_function,
 					   const LV2_Feature *const *features,
 					   ui_element_t *root_element);
 
@@ -343,9 +356,21 @@ extern void ui_window_draw(ui_window_t *window);
 extern void ui_window_destroy(ui_window_t *window);
 
 /*
- * LV2 extension data helper function
+ * LV2 ui helper functions
  */
 extern const void *ui_extension_data(const char *uri);
+
+extern void ui_port_event(ui_window_t *window,
+			  uint32_t port,
+			  uint32_t buffer_size,
+			  uint32_t format,
+			  const void *buffer);
+
+extern void ui_send_port_event(ui_window_t *window,
+			       uint32_t port,
+			       uint32_t buffer_size,
+			       uint32_t port_protocol,
+			       const void *buffer);
 
 extern int ui_idle(LV2UI_Handle instance);
 

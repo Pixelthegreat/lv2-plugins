@@ -276,12 +276,14 @@ static void slider_calculate_size(ui_element_t *element) {
 	element->height = SLIDER_HEIGHT;
 }
 
-static void slider_set_position(ui_element_t *element, int x, int y) {
+static void slider_set_position(ui_element_t *element, int x, int y, ui_window_t *window) {
 
 	if (!ui_element_contains(element, x, element->absy+1))
 		return;
 
 	ui_slider_t *slider = UI_SLIDER(element);
+
+	float old_position = slider->position;
 
 	slider->position = (float)(x - element->absx) /
 			   (float)(SLIDER_WIDTH - SLIDER_VALUE_AREA - SLIDER_CONTROL_WIDTH) *
@@ -290,6 +292,10 @@ static void slider_set_position(ui_element_t *element, int x, int y) {
 	if (slider->position < slider->start) slider->position = slider->start;
 	if (slider->position > slider->end) slider->position = slider->end;
 	slider->position = roundf(slider->position / slider->step) * slider->step;
+
+	if (old_position != slider->position)
+		ui_send_port_event(window, (uint32_t)element->port,
+				   sizeof(float), 0, &slider->position);
 }
 
 static bool slider_process_event(ui_element_t *element,
@@ -305,7 +311,8 @@ static bool slider_process_event(ui_element_t *element,
 
 		window->focused = element;
 		window->draw_window = true;
-		slider_set_position(element, event->button.x, event->button.y);
+		slider_set_position(element, event->button.x,
+				    event->button.y, window);
 	}
 
 	/* remove focus */
@@ -321,12 +328,23 @@ static bool slider_process_event(ui_element_t *element,
 	else if (window->focused == element &&
 		 event->type == UI_EVENT_TYPE_MOTION) {
 
-		slider_set_position(element, event->motion.x, event->motion.y);
+		slider_set_position(element, event->motion.x,
+				    event->motion.y, window);
 		window->draw_window = true;
 	}
 
 	else prop = true;
 	return prop;
+}
+
+static void slider_remote_set_value(ui_element_t *element, float value) {
+
+	ui_slider_t *slider = UI_SLIDER(element);
+
+	slider->position = value;
+
+	if (slider->position < slider->start) slider->position = slider->start;
+	if (slider->position > slider->end) slider->position = slider->end;
 }
 
 static void slider_draw(ui_element_t *element, ui_window_t *window) {
@@ -370,6 +388,7 @@ static void slider_draw(ui_element_t *element, ui_window_t *window) {
 ui_element_ops_t ui_element_ops_slider = {
 	.calculate_size = slider_calculate_size,
 	.process_event = slider_process_event,
+	.remote_set_value = slider_remote_set_value,
 	.draw = slider_draw,
 };
 
@@ -427,15 +446,30 @@ static bool dial_process_event(ui_element_t *element,
 	else if (window->focused == element &&
 		 event->type == UI_EVENT_TYPE_MOTION) {
 
+		float old_position = dial->position;
 		dial->position += (float)-event->motion.yrel * dial->step;
 
 		if (dial->position < dial->start) dial->position = dial->start;
 		if (dial->position > dial->end) dial->position = dial->end;
 		window->draw_window = true;
+
+		if (old_position != dial->position)
+			ui_send_port_event(window, (uint32_t)element->port,
+					   sizeof(float), 0, &dial->position);
 	}
 
 	else prop = true;
 	return prop;
+}
+
+static void dial_remote_set_value(ui_element_t *element, float value) {
+
+	ui_dial_t *dial = UI_DIAL(element);
+
+	dial->position = value;
+
+	if (dial->position < dial->start) dial->position = dial->start;
+	if (dial->position > dial->end) dial->position = dial->end;
 }
 
 static void dial_draw(ui_element_t *element, ui_window_t *window) {
@@ -500,6 +534,7 @@ static void dial_draw(ui_element_t *element, ui_window_t *window) {
 ui_element_ops_t ui_element_ops_dial = {
 	.calculate_size = dial_calculate_size,
 	.process_event = dial_process_event,
+	.remote_set_value = dial_remote_set_value,
 	.draw = dial_draw,
 };
 
@@ -527,8 +562,18 @@ extern bool ui_element_process_event(ui_element_t *element,
 	return true;
 }
 
+/* set element value */
+extern void ui_element_remote_set_value(ui_element_t *element, float value) {
+
+	if (element->ops->remote_set_value)
+		element->ops->remote_set_value(element, value);
+}
+
 /* draw element */
 extern void ui_element_draw(ui_element_t *element, ui_window_t *window) {
+
+	if (element->port >= 0 && element->port < UI_WINDOW_MAX_PORTS)
+		window->ports[element->port] = element;
 
 	if (element->ops->draw)
 		element->ops->draw(element, window);
@@ -591,6 +636,8 @@ extern ui_window_t *ui_window_new_direct(ui_backend_t *backend, uintptr_t parent
 
 /* create window with extra info */
 extern ui_window_t *ui_window_new_features(const char *uri,
+					   LV2UI_Controller controller,
+					   LV2UI_Write_Function write_function,
 					   const LV2_Feature *const *features,
 					   size_t width, size_t height) {
 
@@ -618,12 +665,17 @@ extern ui_window_t *ui_window_new_features(const char *uri,
 	ui_window_t *window = ui_window_new_direct(backend, parent, width, height);
 	if (!window) return NULL;
 
+	window->controller = controller;
+	window->write_function = write_function;
+
 	if (resize) resize->ui_resize(resize->handle, width, height);
 	return window;
 }
 
 /* create window with extra info and elements */
 extern ui_window_t *ui_window_new_elements(const char *uri,
+					   LV2UI_Controller controller,
+					   LV2UI_Write_Function write_function,
 					   const LV2_Feature *const *features,
 					   ui_element_t *root_element) {
 
@@ -634,12 +686,15 @@ extern ui_window_t *ui_window_new_elements(const char *uri,
 
 	ui_element_calculate_position(root_element, NULL);
 
-	ui_window_t *window = ui_window_new_features(uri, features,
+	ui_window_t *window = ui_window_new_features(
+		uri, controller, write_function, features,
 		(size_t)root_element->width + (size_t)ui_style.box.spacing * 2,
 		(size_t)root_element->height + (size_t)ui_style.box.spacing * 2);
 	if (!window) return NULL;
 
 	window->root_element = root_element;
+
+	ui_window_draw(window);
 	return window;
 }
 
@@ -723,4 +778,32 @@ extern const void *ui_extension_data(const char *uri) {
 	if (!strcmp(uri, LV2_UI__idleInterface))
 		return &idle_iface;
 	return NULL;
+}
+
+/* lv2 port event helper functions */
+extern void ui_port_event(ui_window_t *window,
+			  uint32_t port,
+			  uint32_t buffer_size,
+			  uint32_t format,
+			  const void *buffer) {
+
+	if (format || port >= UI_WINDOW_MAX_PORTS ||
+	    !window->ports[port])
+		return; /* we only care about format 0: 1 float */
+
+	ui_element_remote_set_value(window->ports[port], *(const float *)buffer);
+}
+
+extern void ui_send_port_event(ui_window_t *window,
+			       uint32_t port,
+			       uint32_t buffer_size,
+			       uint32_t port_protocol,
+			       const void *buffer) {
+
+	if (!window->write_function || !window->controller)
+		return;
+
+	window->write_function(window->controller,
+			       port, buffer_size,
+			       port_protocol, buffer);
 }

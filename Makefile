@@ -1,3 +1,5 @@
+include common.mk
+
 PLUGINS=bitcrusher delay eq4bp
 CLEAN_PLUGINS=$(foreach plugin,$(PLUGINS),clean_$(plugin))
 

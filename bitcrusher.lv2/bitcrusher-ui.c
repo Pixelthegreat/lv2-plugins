@@ -13,9 +13,9 @@
 /* ui element structure */
 static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 	UI_LABEL_INIT("Repeat Count", .base.halign = UI_ALIGN_START),
-	UI_SLIDER_INIT(1.f, 1.f, 5.f, .color = UI_COLOR_INDEX_ACCENT_RED),
+	UI_SLIDER_INIT(1.f, 1.f, 5.f, .color = UI_COLOR_INDEX_ACCENT_RED, .base.port = 0),
 	UI_LABEL_INIT("Bit Rate", .base.halign = UI_ALIGN_START),
-	UI_SLIDER_INIT(0, 1.f, 16.f, .color = UI_COLOR_INDEX_ACCENT_YELLOW),
+	UI_SLIDER_INIT(0, 1.f, 16.f, .color = UI_COLOR_INDEX_ACCENT_YELLOW, .base.port = 1),
 
 	UI_ELEMENT_END,
 });
@@ -37,7 +37,11 @@ static LV2UI_Handle instantiate(const struct LV2UI_Descriptor *descriptor,
 				LV2UI_Widget *widget,
 				const LV2_Feature *const *features) {
 
-	ui_window_t *window = ui_window_new_elements(descriptor->URI, features, root_element);
+	ui_window_t *window = ui_window_new_elements(descriptor->URI,
+						     controller,
+						     write_function,
+						     features,
+						     root_element);
 	if (!window) {
 
 		fprintf(stderr, "ui: %s\n", ui_get_error());
@@ -65,8 +69,13 @@ static void cleanup(LV2UI_Handle instance) {
 
 /* port event */
 static void port_event(LV2UI_Handle instance,
-		       uint32_t port, uint32_t buffer_size,
-		       uint32_t format, const void *buffer) {
+		       uint32_t port,
+		       uint32_t buffer_size,
+		       uint32_t format,
+		       const void *buffer) {
+
+	struct gui_data *gdata = (struct gui_data *)instance;
+	ui_port_event(gdata->window, port, buffer_size, format, buffer);
 }
 
 /* idle callback */

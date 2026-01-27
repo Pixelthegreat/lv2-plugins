@@ -1,5 +1,7 @@
-@prefix ui: <http://lv2plug.in/ns/extensions/ui#> .
+@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
+@prefix ui:  <http://lv2plug.in/ns/extensions/ui#> .
 
 <http://fanfavoritessofar.com/eq4bp#ui-x11>
 	a ui:X11UI ;
-	ui:requiredFeature ui:makeResident .
+	ui:requiredFeature ui:idleInterface ;
+	lv2:extensionData ui:idleInterface ;

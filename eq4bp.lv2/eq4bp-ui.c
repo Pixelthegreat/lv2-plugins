@@ -21,12 +21,14 @@ static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 			UI_DIAL_INIT(1.f, 20.f, 20000.f,
 				     .color = UI_COLOR_INDEX_ACCENT_RED,
 				     .unit = UI_UNIT_FREQUENCY,
-				     .radius = UI_DIAL_RADIUS_LARGE),
+				     .radius = UI_DIAL_RADIUS_LARGE,
+				     .base.port = 4),
 			UI_LABEL_INIT("Gain"),
 			UI_DIAL_INIT(-12.f, 0.25f, 12.f,
 				     .color = UI_COLOR_INDEX_ACCENT_RED,
 				     .unit = UI_UNIT_DB,
-				     .radius = UI_DIAL_RADIUS_LARGE),
+				     .radius = UI_DIAL_RADIUS_LARGE,
+				     .base.port = 6),
 
 			UI_ELEMENT_END,
 		}),
@@ -38,16 +40,19 @@ static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 			UI_DIAL_INIT(1.f, 20.f, 20000.f,
 				     .color = UI_COLOR_INDEX_ACCENT_YELLOW,
 				     .unit = UI_UNIT_FREQUENCY,
-				     .radius = UI_DIAL_RADIUS_LARGE),
+				     .radius = UI_DIAL_RADIUS_LARGE,
+				     .base.port = 7),
 			UI_LABEL_INIT("Width / Q"),
 			UI_DIAL_INIT(0.1f, 0.025f, 2.f,
 				     .color = UI_COLOR_INDEX_ACCENT_YELLOW,
-				     .radius = UI_DIAL_RADIUS_LARGE),
+				     .radius = UI_DIAL_RADIUS_LARGE,
+				     .base.port = 8),
 			UI_LABEL_INIT("Gain"),
 			UI_DIAL_INIT(-12.f, 0.25f, 12.f,
 				     .color = UI_COLOR_INDEX_ACCENT_YELLOW,
 				     .unit = UI_UNIT_DB,
-				     .radius = UI_DIAL_RADIUS_LARGE),
+				     .radius = UI_DIAL_RADIUS_LARGE,
+				     .base.port = 9),
 
 			UI_ELEMENT_END,
 		}),
@@ -59,16 +64,19 @@ static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 			UI_DIAL_INIT(1.f, 20.f, 20000.f,
 				     .color = UI_COLOR_INDEX_ACCENT_SUMMER_GREEN,
 				     .unit = UI_UNIT_FREQUENCY,
-				     .radius = UI_DIAL_RADIUS_LARGE),
+				     .radius = UI_DIAL_RADIUS_LARGE,
+				     .base.port = 10),
 			UI_LABEL_INIT("Width / Q"),
 			UI_DIAL_INIT(0.1f, 0.025f, 2.f,
 				     .color = UI_COLOR_INDEX_ACCENT_SUMMER_GREEN,
-				     .radius = UI_DIAL_RADIUS_LARGE),
+				     .radius = UI_DIAL_RADIUS_LARGE,
+				     .base.port = 11),
 			UI_LABEL_INIT("Gain"),
 			UI_DIAL_INIT(-12.f, 0.25f, 12.f,
 				     .color = UI_COLOR_INDEX_ACCENT_SUMMER_GREEN,
 				     .unit = UI_UNIT_DB,
-				     .radius = UI_DIAL_RADIUS_LARGE),
+				     .radius = UI_DIAL_RADIUS_LARGE,
+				     .base.port = 12),
 
 			UI_ELEMENT_END,
 		}),
@@ -80,12 +88,14 @@ static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 			UI_DIAL_INIT(1.f, 20.f, 20000.f,
 				     .color = UI_COLOR_INDEX_ACCENT_BLUE,
 				     .unit = UI_UNIT_FREQUENCY,
-				     .radius = UI_DIAL_RADIUS_LARGE),
+				     .radius = UI_DIAL_RADIUS_LARGE,
+				     .base.port = 13),
 			UI_LABEL_INIT("Gain"),
 			UI_DIAL_INIT(-12.f, 0.25f, 12.f,
 				     .color = UI_COLOR_INDEX_ACCENT_BLUE,
 				     .unit = UI_UNIT_DB,
-				     .radius = UI_DIAL_RADIUS_LARGE),
+				     .radius = UI_DIAL_RADIUS_LARGE,
+				     .base.port = 15),
 
 			UI_ELEMENT_END,
 		}),
@@ -95,10 +105,12 @@ static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 		UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 			UI_LABEL_INIT("Input"),
 			UI_DIAL_INIT(-12.f, 0.25f, 12.f,
-				     .unit = UI_UNIT_DB),
+				     .unit = UI_UNIT_DB,
+				     .base.port = 16),
 			UI_LABEL_INIT("Output"),
 			UI_DIAL_INIT(-12.f, 0.26f, 12.f,
-				     .unit = UI_UNIT_DB),
+				     .unit = UI_UNIT_DB,
+				     .base.port = 17),
 
 			UI_ELEMENT_END,
 		}),
@@ -122,7 +134,12 @@ static LV2UI_Handle instantiate(const struct LV2UI_Descriptor *descriptor,
 				LV2UI_Widget *widget,
 				const LV2_Feature *const *features) {
 
-	ui_window_t *window = ui_window_new_elements(descriptor->URI, features, root_element);
+
+	ui_window_t *window = ui_window_new_elements(descriptor->URI,
+						     controller,
+						     write_function,
+						     features,
+						     root_element);
 	if (!window) {
 
 		fprintf(stderr, "ui: %s\n", ui_get_error());
@@ -150,8 +167,13 @@ static void cleanup(LV2UI_Handle instance) {
 
 /* port event */
 static void port_event(LV2UI_Handle instance,
-		       uint32_t port, uint32_t buffer_size,
-		       uint32_t format, const void *buffer) {
+		       uint32_t port,
+		       uint32_t buffer_size,
+		       uint32_t format,
+		       const void *buffer) {
+
+	struct gui_data *gdata = (struct gui_data *)instance;
+	ui_port_event(gdata->window, port, buffer_size, format, buffer);
 }
 
 /* idle callback */
