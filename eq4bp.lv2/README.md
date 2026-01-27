@@ -1,4 +1,6 @@
 # 4-Band Parametric Equalizer
+![screenshot](screenshot.png)
+
 This is a 4-band parametric equalizer in which each band has a controllable frequency, width (Q) and gain. It utilizes a variation of the biquadratic (FIR and IIR) algorithm, derived from [here](https://www.earlevel.com/main/2012/11/26/biquad-c-source-code). The specific configuration for this plugin is as follows:
 
 - Band 1: A low-shelf filter defaulted at 300 Hz

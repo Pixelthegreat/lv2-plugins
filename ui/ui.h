@@ -57,6 +57,7 @@ typedef enum ui_unit {
 	UI_UNIT_NORMAL = 0,
 	UI_UNIT_DB,
 	UI_UNIT_FREQUENCY,
+	UI_UNIT_MS,
 
 	UI_UNIT_COUNT,
 } ui_unit_t;

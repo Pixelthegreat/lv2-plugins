@@ -301,6 +301,10 @@ static const char *get_slider_value_format(float *position, float step, ui_unit_
 				return "%.0f Hz";
 			*position /= 1000.f;
 			return "%.1f kHz";
+
+		/* time (ms) */
+		case UI_UNIT_MS:
+			return "%.0f ms";
 	}
 	return ignore_decimal? "%.0f": "%.3f";
 }

@@ -25,7 +25,7 @@ static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_HORIZONTAL, {
 		UI_LABEL_INIT("Time"),
 	UI_DIAL_INIT(0, 1.f, 200.f,
 			     .color = UI_COLOR_INDEX_ACCENT_VIOLET,
-			     .unit = UI_UNIT_NORMAL,
+			     .unit = UI_UNIT_MS,
 			     .radius = UI_DIAL_RADIUS_LARGE,
 			     .base.port = 4),
 		UI_ELEMENT_END,
