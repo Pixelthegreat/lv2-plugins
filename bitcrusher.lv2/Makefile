@@ -14,11 +14,11 @@ bitcrusher.o: bitcrusher.c
 	@echo CC bitcrusher.c
 	@$(CC) $(CFLAGS) bitcrusher.c
 
-bitcrusher-ui.so: bitcrusher-ui.o ../ui/libui.a ../ui/ui.h
+bitcrusher-ui.so: bitcrusher-ui.o ../ui/libui.a
 	@echo LD bitcrusher-ui.so
 	@$(CC) -o bitcrusher-ui.so bitcrusher-ui.o $(LINK_UI) $(LDFLAGS)
 
-bitcrusher-ui.o: bitcrusher-ui.c
+bitcrusher-ui.o: bitcrusher-ui.c ../ui/ui.h
 	@echo CC bitcrusher-ui.c
 	@$(CC) $(CFLAGS) $(BUILD_UI) bitcrusher-ui.c
 

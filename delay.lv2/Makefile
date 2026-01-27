@@ -14,11 +14,11 @@ delay.o: delay.c
 	@echo CC delay.c
 	@$(CC) $(CFLAGS) delay.c
 
-delay-ui.so: delay-ui.o ../ui/libui.a ../ui/ui.h
+delay-ui.so: delay-ui.o ../ui/libui.a
 	@echo LD delay-ui.so
 	@$(CC) -o delay-ui.so delay-ui.o $(LINK_UI) $(LDFLAGS)
 
-delay-ui.o: delay-ui.c
+delay-ui.o: delay-ui.c ../ui/ui.h
 	@echo CC delay-ui.c
 	@$(CC) $(CFLAGS) $(BUILD_UI) delay-ui.c
 
