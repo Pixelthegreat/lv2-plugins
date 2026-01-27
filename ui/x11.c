@@ -148,7 +148,11 @@ static void destroy_window(void *data) {
 	XDestroyWindow(display, window);
 	window_count--;
 
-	if (!window_count) XCloseDisplay(display);
+	if (!window_count) {
+
+		XCloseDisplay(display);
+		display = NULL;
+	}
 }
 
 /* backend */

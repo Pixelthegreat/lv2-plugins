@@ -3,6 +3,7 @@
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
+@prefix ui:    <http://lv2plug.in/ns/extensions/ui#> .
 
 <http://fanfavoritessofar.com/delay>
 	a lv2:Plugin ,
@@ -10,6 +11,7 @@
 	lv2:project <http://fanfavoritessofar.com> ;
 	doap:name "Delay" ;
 	lv2:optionalFeature lv2:hardRTCapable ;
+	ui:ui <http://fanfavoritessofar.com/delay#ui-x11> ;
 	lv2:port [
 		a lv2:AudioPort ,
 			lv2:InputPort ;

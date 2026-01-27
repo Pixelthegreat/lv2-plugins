@@ -1,8 +1,10 @@
+include ../common.mk
+
 CC ?= CC
 CFLAGS += -c -fPIC
 LDFLAGS += -shared -lm
 
-all: delay.so
+all: delay.so delay-ui.so
 
 delay.so: delay.o
 	@echo LD delay.so
@@ -12,5 +14,13 @@ delay.o: delay.c
 	@echo CC delay.c
 	@$(CC) $(CFLAGS) delay.c
 
+delay-ui.so: delay-ui.o ../ui/libui.a ../ui/ui.h
+	@echo LD delay-ui.so
+	@$(CC) -o delay-ui.so delay-ui.o $(LINK_UI) $(LDFLAGS)
+
+delay-ui.o: delay-ui.c
+	@echo CC delay-ui.c
+	@$(CC) $(CFLAGS) $(BUILD_UI) delay-ui.c
+
 clean:
-	rm delay.o delay.so
+	rm delay.o delay-ui.o delay.so delay-ui.so

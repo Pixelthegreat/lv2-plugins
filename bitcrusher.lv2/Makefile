@@ -14,7 +14,7 @@ bitcrusher.o: bitcrusher.c
 	@echo CC bitcrusher.c
 	@$(CC) $(CFLAGS) bitcrusher.c
 
-bitcrusher-ui.so: bitcrusher-ui.o ../ui/libui.a
+bitcrusher-ui.so: bitcrusher-ui.o ../ui/libui.a ../ui/ui.h
 	@echo LD bitcrusher-ui.so
 	@$(CC) -o bitcrusher-ui.so bitcrusher-ui.o $(LINK_UI) $(LDFLAGS)
 

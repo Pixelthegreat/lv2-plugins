@@ -73,11 +73,30 @@ static void label_draw(ui_element_t *element, ui_window_t *window) {
 }
 
 ui_element_ops_t ui_element_ops_label = {
+	.size = sizeof(ui_label_t),
 	.calculate_size = label_calculate_size,
 	.draw = label_draw,
 };
 
 /* box element */
+static void box_copy_children(ui_element_t *element) {
+
+	ui_box_t *box = UI_BOX(element);
+
+	size_t count = 0;
+	ui_element_t **elements = box->elements;
+	for (; (*elements)->ops; elements++, count++);
+
+	elements = box->elements;
+	box->elements = malloc(sizeof(ui_element_t *) * (count + 1));
+
+	for (size_t i = 0; (*elements)->ops; elements++, i++)
+		box->elements[i] = ui_element_copy(*elements);
+
+	box->elements[count] = malloc(sizeof(ui_element_t));
+	box->elements[count]->ops = NULL;
+}
+
 static void box_calculate_size(ui_element_t *element) {
 
 	ui_box_t *box = UI_BOX(element);
@@ -181,11 +200,25 @@ static void box_draw(ui_element_t *element, ui_window_t *window) {
 		ui_element_draw(*elements, window);
 }
 
+static void box_destroy(ui_element_t *element) {
+
+	ui_box_t *box = UI_BOX(element);
+
+	ui_element_t **elements = box->elements;
+	for (; (*elements)->ops; elements++)
+		ui_element_destroy(*elements);
+
+	free(box->elements);
+}
+
 ui_element_ops_t ui_element_ops_box = {
+	.size = sizeof(ui_box_t),
+	.copy_children = box_copy_children,
 	.calculate_size = box_calculate_size,
 	.calculate_position = box_calculate_position,
 	.process_event = box_process_event,
 	.draw = box_draw,
+	.destroy = box_destroy,
 };
 
 /* separator element */
@@ -221,6 +254,7 @@ static void separator_draw(ui_element_t *element, ui_window_t *window) {
 }
 
 ui_element_ops_t ui_element_ops_separator = {
+	.size = sizeof(ui_separator_t),
 	.calculate_size = separator_calculate_size,
 	.draw = separator_draw,
 };
@@ -236,6 +270,7 @@ static void button_draw(ui_element_t *element, ui_window_t *window) {
 }
 
 ui_element_ops_t ui_element_ops_button = {
+	.size = sizeof(ui_button_t),
 	.calculate_size = button_calculate_size,
 	.draw = button_draw,
 };
@@ -386,6 +421,7 @@ static void slider_draw(ui_element_t *element, ui_window_t *window) {
 }
 
 ui_element_ops_t ui_element_ops_slider = {
+	.size = sizeof(ui_slider_t),
 	.calculate_size = slider_calculate_size,
 	.process_event = slider_process_event,
 	.remote_set_value = slider_remote_set_value,
@@ -532,11 +568,24 @@ static void dial_draw(ui_element_t *element, ui_window_t *window) {
 }
 
 ui_element_ops_t ui_element_ops_dial = {
+	.size = sizeof(ui_dial_t),
 	.calculate_size = dial_calculate_size,
 	.process_event = dial_process_event,
 	.remote_set_value = dial_remote_set_value,
 	.draw = dial_draw,
 };
+
+/* make a copy of a ui element */
+extern ui_element_t *ui_element_copy(ui_element_t *element) {
+
+	ui_element_t *new = malloc(element->ops->size);
+	memcpy(new, element, element->ops->size);
+
+	if (element->ops->copy_children)
+		element->ops->copy_children(new);
+
+	return new;
+}
 
 /* calculate element size */
 extern void ui_element_calculate_size(ui_element_t *element) {
@@ -577,6 +626,15 @@ extern void ui_element_draw(ui_element_t *element, ui_window_t *window) {
 
 	if (element->ops->draw)
 		element->ops->draw(element, window);
+}
+
+/* destroy ui element */
+extern void ui_element_destroy(ui_element_t *element) {
+
+	if (element->ops->destroy)
+		element->ops->destroy(element);
+
+	free(element);
 }
 
 /* check if element contains point */
@@ -679,6 +737,8 @@ extern ui_window_t *ui_window_new_elements(const char *uri,
 					   const LV2_Feature *const *features,
 					   ui_element_t *root_element) {
 
+	root_element = ui_element_copy(root_element);
+
 	ui_element_calculate_size(root_element);
 
 	root_element->absx = ui_style.box.spacing;
@@ -690,7 +750,11 @@ extern ui_window_t *ui_window_new_elements(const char *uri,
 		uri, controller, write_function, features,
 		(size_t)root_element->width + (size_t)ui_style.box.spacing * 2,
 		(size_t)root_element->height + (size_t)ui_style.box.spacing * 2);
-	if (!window) return NULL;
+	if (!window) {
+
+		ui_element_destroy(root_element);
+		return NULL;
+	}
 
 	window->root_element = root_element;
 
@@ -765,10 +829,13 @@ extern void ui_window_draw(ui_window_t *window) {
 /* destroy window */
 extern void ui_window_destroy(ui_window_t *window) {
 
+	ui_element_destroy(window->root_element);
+
 	if (window->cr) cairo_destroy(window->cr);
 	cairo_surface_destroy(window->surface);
 
 	selected_backend->destroy_window(window->backend_data);
+	free(window);
 }
 
 /* lv2 extension data helper function */

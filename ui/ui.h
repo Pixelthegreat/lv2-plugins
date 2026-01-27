@@ -62,6 +62,8 @@ typedef enum ui_unit {
 } ui_unit_t;
 
 typedef struct ui_element_ops {
+	size_t size;
+	void (*copy_children)(struct ui_element *element);
 	void (*calculate_size)(struct ui_element *element);
 	void (*calculate_position)(struct ui_element *element, struct ui_element *parent);
 	bool (*process_event)(struct ui_element *element,
@@ -69,6 +71,7 @@ typedef struct ui_element_ops {
 			      struct ui_window *window);
 	void (*remote_set_value)(struct ui_element *element, float value);
 	void (*draw)(struct ui_element *element, struct ui_window *window);
+	void (*destroy)(struct ui_element *element);
 } ui_element_ops_t;
 
 typedef struct ui_element {
@@ -97,6 +100,7 @@ typedef struct ui_element {
 /*
  * Element operations
  */
+extern ui_element_t *ui_element_copy(ui_element_t *element);
 extern void ui_element_calculate_size(ui_element_t *element);
 extern void ui_element_calculate_position(ui_element_t *element, ui_element_t *parent);
 extern bool ui_element_process_event(ui_element_t *element,
@@ -104,6 +108,7 @@ extern bool ui_element_process_event(ui_element_t *element,
 				     struct ui_window *window);
 extern void ui_element_remote_set_value(ui_element_t *element, float value);
 extern void ui_element_draw(ui_element_t *element, struct ui_window *window);
+extern void ui_element_destroy(ui_element_t *element);
 
 extern bool ui_element_contains(ui_element_t *element, int x, int y);
 
