@@ -1,6 +1,6 @@
 include common.mk
 
-PLUGINS=bitcrusher delay eq4bp
+PLUGINS=bitcrusher delay eq4bp mixer-strip
 LIBRARIES=ui biquad
 
 CLEAN_PLUGINS=$(foreach plugin,$(PLUGINS),clean_$(plugin))
@@ -23,9 +23,9 @@ $(PLUGINS):
 clean: $(CLEAN_LIBRARIES) $(CLEAN_PLUGINS)
 
 $(CLEAN_LIBRARIES):
-	@echo == Cleaning $@ ==
-	@cd $@ && $(MAKE) -s clean
+	@echo == Cleaning $(@:clean_%=%) ==
+	@cd $(@:clean_%=%) && $(MAKE) -s clean
 
 $(CLEAN_PLUGINS):
-	@echo == Cleaning $@ ==
-	@cd $@.lv2 && $(MAKE) -s
+	@echo == Cleaning $(@:clean_%=%) ==
+	@cd $(@:clean_%=%).lv2 && $(MAKE) -s clean

@@ -1,26 +1,8 @@
 include ../common.mk
 
-CC=cc
-CFLAGS=-c -fPIC
-LDFLAGS=-shared -lm
+NAME=bitcrusher
 
-all: bitcrusher.so bitcrusher-ui.so
+SOURCES += bitcrusher.c
+UI_SOURCES += bitcrusher-ui.c
 
-bitcrusher.so: bitcrusher.o
-	@echo LD bitcrusher.so
-	@$(CC) -o bitcrusher.so bitcrusher.o $(LDFLAGS)
-
-bitcrusher.o: bitcrusher.c
-	@echo CC bitcrusher.c
-	@$(CC) $(CFLAGS) bitcrusher.c
-
-bitcrusher-ui.so: bitcrusher-ui.o ../ui/libui.a
-	@echo LD bitcrusher-ui.so
-	@$(CC) -o bitcrusher-ui.so bitcrusher-ui.o $(LINK_UI) $(LDFLAGS)
-
-bitcrusher-ui.o: bitcrusher-ui.c ../ui/ui.h
-	@echo CC bitcrusher-ui.c
-	@$(CC) $(CFLAGS) $(BUILD_UI) bitcrusher-ui.c
-
-clean:
-	rm bitcrusher.o bitcrusher-ui.o bitcrusher.so bitcrusher-ui.so
+include ../plugin.mk

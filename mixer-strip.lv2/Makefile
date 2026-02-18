@@ -1,12 +1,12 @@
 include ../common.mk
 
-NAME=eq4bp
+NAME=mixer-strip
 
 PLUGIN_CFLAGS += $(BUILD_BIQUAD)
 PLUGIN_LDFLAGS += $(LINK_BIQUAD)
 PLUGIN_DEPENDS += ../biquad/libbiquad.a
 
-SOURCES += eq4bp.c
-UI_SOURCES += eq4bp-ui.c
+SOURCES += mixer-strip.c
+UI_SOURCES += mixer-strip-ui.c
 
 include ../plugin.mk
