@@ -1,11 +1,13 @@
 # My LV2 Plugins
 These are some of my LV2 audio plugins and effects. The recommended programs to run them in are [Reaper](https://reaper.fm) and [Muse](https://muse-sequencer.github.io), as I regularly test my plugins there.
 
-| Name       | Short Description           | Full Description                                                                                              |
-|------------|-----------------------------|---------------------------------------------------------------------------------------------------------------|
-| bitcrusher | Bitcrusher                  | A bitcrusher that simulates a low quality resampling algorithm and bit rate quantization.                     |
-| delay      | Delay                       | A delay with a controllable time and feedback.                                                                |
-| eq4bp      | 4-Band Parametric Equalizer | A parametric equalizer with 4 bands: One low-shelf filter, two bell / peak filters and one high-shelf filter. |
+| Name        | Short Description           | Full Description                                                                                              |
+|-------------|-----------------------------|---------------------------------------------------------------------------------------------------------------|
+| bitcrusher  | Bitcrusher                  | A bitcrusher that simulates a low quality resampling algorithm and bit rate quantization.                     |
+| clipper     | Clipper                     | A basic clipper with support for hard and soft clipping.                                                      |
+| delay       | Delay                       | A delay with a controllable time and feedback.                                                                |
+| eq4bp       | 4-Band Parametric Equalizer | A parametric equalizer with 4 bands: One low-shelf filter, two bell / peak filters and one high-shelf filter. |
+| mixer-strip | Mixer Strip                 | A basic mixer strip with gain, pan and an equalizer.                                                          |
 
 # Building and Installing
 Each plugin has its own subdirectory with the code and plugin descriptions. A Makefile is provided at the root to build all of them, though each project has its own indepedent Makefile if you need to build them separately.
