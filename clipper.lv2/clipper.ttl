@@ -5,13 +5,13 @@
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 @prefix ui:    <http://lv2plug.in/ns/extensions/ui#> .
 
-<http://fanfavoritessofar.com/mixer-strip>
+<http://fanfavoritessofar.com/clipper>
 	a lv2:Plugin ,
 		lv2:AmplifierPlugin ;
-	lv2:project <http://fanfavoritessofar.com/mixer-strip> ;
-	doap:name "Mixer Strip" ;
+	lv2:project <http://fanfavoritessofar.com/clipper> ;
+	doap:name "Clipper" ;
 	lv2:optionalFeature lv2:hardRTCapable ;
-	ui:ui <http://fanfavoritessofar.com/mixer-strip#ui-x11> ;
+	ui:ui <http://fanfavoritessofar.com/clipper#ui-x11> ;
 	lv2:port [
 		a lv2:AudioPort ,
 			lv2:InputPort ;
@@ -50,68 +50,19 @@
 		a lv2:InputPort ,
 			lv2:ControlPort ;
 		lv2:index 5 ;
-		lv2:symbol "inputPan" ;
-		lv2:name "Input Pan" ;
+		lv2:symbol "ceiling" ;
+		lv2:name "Ceiling" ;
 		lv2:default 0.0 ;
-		lv2:minimum -1.0 ;
-		lv2:maximum 1.0 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 0.9 ;
 	] , [
 		a lv2:InputPort ,
 			lv2:ControlPort ;
 		lv2:index 6 ;
-		lv2:symbol "lowEQ" ;
-		lv2:name "Low EQ" ;
-		lv2:default 0.0 ;
-		lv2:minimum -12.0 ;
-		lv2:maximum 12.0 ;
-		units:unit units:db ;
-	] , [
-		a lv2:InputPort ,
-			lv2:ControlPort ;
-		lv2:index 7 ;
-		lv2:symbol "midEQ" ;
-		lv2:name "Mid EQ" ;
-		lv2:default 0.0 ;
-		lv2:minimum -12.0 ;
-		lv2:maximum 12.0 ;
-		units:unit units:db ;
-	] , [
-		a lv2:InputPort ,
-			lv2:ControlPort ;
-		lv2:index 8 ;
-		lv2:symbol "highEQ" ;
-		lv2:name "High EQ" ;
-		lv2:default 0.0 ;
-		lv2:minimum -12.0 ;
-		lv2:maximum 12.0 ;
-		units:unit units:db ;
-	] , [
-		a lv2:InputPort ,
-			lv2:ControlPort ;
-		lv2:index 9 ;
-		lv2:symbol "compression" ;
-		lv2:name "Compression" ;
-		lv2:default 0.0 ;
-		lv2:maximum 1.0 ;
-		lv2:minimum 0.0 ;
-		units:unit units:coef ;
-	] , [
-		a lv2:InputPort ,
-			lv2:ControlPort ;
-		lv2:index 10 ;
 		lv2:symbol "outputGain" ;
 		lv2:name "Output Gain" ;
 		lv2:default 0.0 ;
 		lv2:minimum -12.0 ;
 		lv2:maximum 12.0 ;
 		units:unit units:db ;
-	] , [
-		a lv2:InputPort ,
-			lv2:ControlPort ;
-		lv2:index 11 ;
-		lv2:symbol "outputPan" ;
-		lv2:name "Output Pan" ;
-		lv2:default 0.0 ;
-		lv2:minimum -1.0 ;
-		lv2:maximum 1.0 ;
 	] .

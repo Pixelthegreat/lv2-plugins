@@ -13,7 +13,73 @@
 /* ui element structure */
 static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 
-	UI_LABEL_INIT("Under construction"),
+	UI_LABEL_INIT("Input"),
+	UI_BOX_INIT(UI_ORIENTATION_HORIZONTAL, {
+
+		UI_DIAL_INIT(-12.f, 0.25f, 12.f,
+			     .color = UI_COLOR_INDEX_ACCENT_RED,
+			     .unit = UI_UNIT_DB,
+			     .radius = UI_DIAL_RADIUS_NORMAL,
+			     .base.port = 4),
+		UI_DIAL_INIT(-1.f, 0.1f, 1.f,
+			     .color = UI_COLOR_INDEX_ACCENT_RED,
+			     .unit = UI_UNIT_PANORAMA,
+			     .radius = UI_DIAL_RADIUS_NORMAL,
+			     .base.port = 5),
+		UI_ELEMENT_END,
+	}),
+	UI_SEPARATOR_INIT(UI_ORIENTATION_HORIZONTAL, 90),
+
+	/* equalizer and compression */
+	UI_LABEL_INIT("Equalizer"),
+	UI_BOX_INIT(UI_ORIENTATION_HORIZONTAL, {
+		UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
+
+			UI_DIAL_INIT(-12.f, 0.25f, 12.f,
+				     .color = UI_COLOR_INDEX_ACCENT_YELLOW,
+				     .unit = UI_UNIT_DB,
+				     .radius = UI_DIAL_RADIUS_LARGE,
+				     .base.port = 6),
+			UI_DIAL_INIT(-12.f, 0.25f, 12.f,
+				     .color = UI_COLOR_INDEX_ACCENT_YELLOW,
+				     .unit = UI_UNIT_DB,
+				     .radius = UI_DIAL_RADIUS_LARGE,
+				     .base.port = 8),
+			UI_ELEMENT_END,
+		}),
+		UI_DIAL_INIT(-12.f, 0.25f, 12.f,
+			     .color = UI_COLOR_INDEX_ACCENT_YELLOW,
+			     .unit = UI_UNIT_DB,
+			     .radius = UI_DIAL_RADIUS_LARGE,
+			     .base.port = 7),
+		UI_ELEMENT_END,
+	}),
+	UI_SEPARATOR_INIT(UI_ORIENTATION_HORIZONTAL, 90),
+
+	UI_LABEL_INIT("Compression"),
+	UI_DIAL_INIT(0, 0.1f, 1.f,
+		     .color = UI_COLOR_INDEX_ACCENT_SUMMER_GREEN,
+		     .radius = UI_DIAL_RADIUS_LARGE,
+		     .base.port = 9),
+	UI_SEPARATOR_INIT(UI_ORIENTATION_HORIZONTAL, 90),
+
+	/* output */
+	UI_LABEL_INIT("Output"),
+	UI_BOX_INIT(UI_ORIENTATION_HORIZONTAL, {
+
+		UI_DIAL_INIT(-12.f, 0.25f, 12.f,
+			     .color = UI_COLOR_INDEX_ACCENT_BLUE,
+			     .unit = UI_UNIT_DB,
+			     .radius = UI_DIAL_RADIUS_NORMAL,
+			     .base.port = 10),
+		UI_DIAL_INIT(-1.f, 0.1f, 1.f,
+			     .color = UI_COLOR_INDEX_ACCENT_BLUE,
+			     .unit = UI_UNIT_PANORAMA,
+			     .radius = UI_DIAL_RADIUS_NORMAL,
+			     .base.port = 11),
+		UI_ELEMENT_END,
+	}),
+
 	UI_ELEMENT_END,
 });
 

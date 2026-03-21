@@ -8,7 +8,7 @@
 #include <lv2/ui/ui.h>
 #include <ui.h>
 
-#define DELAY_URI "http://fanfavoritessofar.com/delay"
+#define CLIPPER_URI "http://fanfavoritessofar.com/clipper"
 
 /* ui element structure */
 static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_HORIZONTAL, {
@@ -16,34 +16,24 @@ static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_HORIZONTAL, {
 	UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 		UI_LABEL_INIT("Input"),
 		UI_DIAL_INIT(-12.f, 0.25f, 12.f,
-			     .color = UI_COLOR_INDEX_ACCENT_VIOLET,
+			     .color = UI_COLOR_INDEX_ACCENT_YELLOW,
 			     .unit = UI_UNIT_DB,
-			     .base.port = 6),
-		UI_ELEMENT_END,
-	}),
-	UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
-		UI_LABEL_INIT("Time"),
-		UI_DIAL_INIT(0, 1.f, 200.f,
-			     .color = UI_COLOR_INDEX_ACCENT_VIOLET,
-			     .unit = UI_UNIT_MS,
-			     .radius = UI_DIAL_RADIUS_LARGE,
 			     .base.port = 4),
 		UI_ELEMENT_END,
 	}),
 	UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
-		UI_LABEL_INIT("Feedback"),
-		UI_DIAL_INIT(0.1f, 0.1f, 0.9f,
-			     .color = UI_COLOR_INDEX_ACCENT_VIOLET,
-			     .radius = UI_DIAL_RADIUS_LARGE,
+		UI_LABEL_INIT("Ceiling"),
+		UI_DIAL_INIT(0, 0.1f, 0.9f,
+			     .color = UI_COLOR_INDEX_ACCENT_YELLOW,
 			     .base.port = 5),
 		UI_ELEMENT_END,
 	}),
 	UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 		UI_LABEL_INIT("Output"),
 		UI_DIAL_INIT(-12.f, 0.25f, 12.f,
-			     .color = UI_COLOR_INDEX_ACCENT_VIOLET,
+			     .color = UI_COLOR_INDEX_ACCENT_YELLOW,
 			     .unit = UI_UNIT_DB,
-			     .base.port = 7),
+			     .base.port = 6),
 		UI_ELEMENT_END,
 	}),
 	UI_ELEMENT_END,
@@ -115,6 +105,6 @@ extern int ui_idle(LV2UI_Handle instance) {
 
 /* descriptors */
 UI_DESCRIPTOR_LIST = {
-	UI_DESCRIPTOR(DELAY_URI, x11),
+	UI_DESCRIPTOR(CLIPPER_URI, x11),
 };
 UI_DESCRIPTOR_FUNCTION;

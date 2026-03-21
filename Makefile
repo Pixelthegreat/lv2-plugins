@@ -1,6 +1,6 @@
 include common.mk
 
-PLUGINS=bitcrusher delay eq4bp mixer-strip
+PLUGINS=bitcrusher clipper delay eq4bp mixer-strip
 LIBRARIES=ui biquad
 
 CLEAN_PLUGINS=$(foreach plugin,$(PLUGINS),clean_$(plugin))

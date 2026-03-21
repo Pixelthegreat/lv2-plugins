@@ -305,6 +305,17 @@ static const char *get_slider_value_format(float *position, float step, ui_unit_
 		/* time (ms) */
 		case UI_UNIT_MS:
 			return "%.0f ms";
+
+		/* panorama (L, C, R) */
+		case UI_UNIT_PANORAMA:
+			if (fabs(*position) < 0.0001f)
+				return "C";
+			if (*position < -0.0001f) {
+
+				*position *= -1.f;
+				return "%.1f L";
+			}
+			return "%.1f R";
 	}
 	return ignore_decimal? "%.0f": "%.3f";
 }
@@ -453,8 +464,8 @@ static void dial_calculate_size(ui_element_t *element) {
 	element->width = dial->radius * 2;
 	element->height = dial->radius * 2 + DEFAULT_TEXT_HEIGHT;
 
-	if (DEFAULT_TEXT_WIDTH > element->width)
-		element->width = DEFAULT_TEXT_WIDTH;
+	if (DEFAULT_TEXT_WIDTH/2 > element->width)
+		element->width = DEFAULT_TEXT_WIDTH/2;
 }
 
 static bool dial_process_event(ui_element_t *element,
@@ -516,7 +527,7 @@ static void dial_draw(ui_element_t *element, ui_window_t *window) {
 
 	ui_dial_t *dial = UI_DIAL(element);
 
-	double centerx = (double)(element->absx + DEFAULT_TEXT_WIDTH / 2);
+	double centerx = (double)(element->absx + DEFAULT_TEXT_WIDTH / 4);
 	double centery = (double)(element->absy + dial->radius);
 
 	/* draw base */
@@ -562,7 +573,7 @@ static void dial_draw(ui_element_t *element, ui_window_t *window) {
 	cairo_text_extents_t extents;
 	cairo_text_extents(window->cr, value, &extents);
 
-	double textx = (double)element->absx + (DEFAULT_TEXT_WIDTH - extents.width) / 2;
+	double textx = (double)element->absx + (DEFAULT_TEXT_WIDTH/2 - extents.width) / 2;
 	double texty = (double)(element->absy + dial->radius * 2) +
 			(DEFAULT_TEXT_HEIGHT - extents.height) / 2;
 

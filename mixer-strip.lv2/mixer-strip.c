@@ -4,53 +4,60 @@
 #include <string.h>
 #include <math.h>
 #include <lv2/core/lv2.h>
+#include <biquad.h>
 
 #define MIXER_STRIP_URI "http://fanfavoritessofar.com/mixer-strip"
 
-/* ports */
+/* port data */
 enum {
-	PORT_INPUT_GAIN = 0,
-	PORT_INPUT_PAN = 1,
-	PORT_LOW_EQ = 2,
-	PORT_MID_EQ = 3,
-	PORT_HIGH_EQ = 4,
-	PORT_OUTPUT_GAIN = 5,
-	PORT_OUTPUT_PAN = 6,
-	PORT_LEFT_INPUT = 7,
-	PORT_RIGHT_INPUT = 8,
-	PORT_LEFT_OUTPUT = 9,
-	PORT_RIGHT_OUTPUT = 10,
+	PORT_LEFT_INPUT = 0,
+	PORT_RIGHT_INPUT,
+	PORT_LEFT_OUTPUT,
+	PORT_RIGHT_OUTPUT,
+	PORT_INPUT_GAIN,
+	PORT_INPUT_PAN,
+	PORT_LOW_EQ,
+	PORT_MID_EQ,
+	PORT_HIGH_EQ,
+	PORT_COMPRESSION,
+	PORT_OUTPUT_GAIN,
+	PORT_OUTPUT_PAN,
 
 	PORT_COUNT,
+
+	PORT_EQ_FIRST = PORT_LOW_EQ,
+	PORT_EQ_LAST = PORT_HIGH_EQ,
+	PORT_EQ_COUNT = PORT_EQ_LAST - PORT_EQ_FIRST + 1,
 };
 struct port_data {
+	float sample_rate;
 	union {
-		const float *ports[PORT_COUNT]; /* ports */
+		const float *ports[PORT_COUNT];
 		struct {
-			const float *input_gain; /* input gain */
-			const float *input_pan; /* input pan */
-			const float *low_eq; /* low equalization */
-			const float *mid_eq; /* mid equalization */
-			const float *high_eq; /* high equalization */
-			const float *output_gain; /* output gain */
-			const float *output_pan; /* output pan */
-			const float *left_input, *right_input; /* input data */
-			float *left_output, *right_output; /* output data */
+			const float *left_input, *right_input;
+			float *left_output, *right_output;
+			const float *input_gain;
+			const float *input_pan;
+			const float *low_eq;
+			const float *mid_eq;
+			const float *high_eq;
+			const float *compression;
+			const float *output_gain;
+			const float *output_pan;
 		} __attribute__((packed));
 	};
+	biquad_filter_t filters[PORT_EQ_COUNT];
+	bool initialized;
 };
 
 /* create instance */
-static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate, const char *bundle_path, const LV2_Feature *const *features) {
+static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double sample_rate,
+			      const char *bundle_path, const LV2_Feature *const *features) {
 
 	struct port_data *data = (struct port_data *)malloc(sizeof(struct port_data));
 	memset(data, 0, sizeof(struct port_data));
 
-	while (*features) {
-
-		const LV2_Feature *feature = *features++;
-		printf("mixer-strip:info: Feature %s\n", feature->URI);
-	}
+	data->sample_rate = (float)sample_rate;
 
 	return (LV2_Handle)data;
 }
@@ -92,6 +99,21 @@ static void adjust_pan(struct port_data *data, float pan, uint32_t nsamples) {
 	adjust_gain(data->right_output, data->right_output, gain, nsamples);
 }
 
+/* run biquad filters */
+static void run_filters(struct port_data *data, const float *input,
+			float *output, int channel, size_t count) {
+
+	for (size_t i = 0; i < count; i++) {
+
+		output[i] = input[i];
+		for (uint32_t j = 0; j < PORT_EQ_COUNT; j++) {
+
+			biquad_filter_t *filter = data->filters+j;
+			output[i] = biquad_filter_process_sample(filter, channel, output[i]);
+		}
+	}
+}
+
 /* run instance */
 static void run(LV2_Handle instance, uint32_t nsamples) {
 
@@ -104,6 +126,35 @@ static void run(LV2_Handle instance, uint32_t nsamples) {
 	adjust_pan(data, *data->input_pan, nsamples);
 
 	/* equalization */
+	static biquad_filter_type_t types[PORT_EQ_COUNT] = {
+		BIQUAD_FILTER_TYPE_LOW_SHELF,
+		BIQUAD_FILTER_TYPE_BELL,
+		BIQUAD_FILTER_TYPE_HIGH_SHELF,
+	};
+	static float frequencies[PORT_EQ_COUNT] = {
+		300.f, 750.f, 2000.f,
+	};
+	static float widths[PORT_EQ_COUNT] = {
+		0.707f, 0.707f, 0.707f,
+	};
+
+	for (uint32_t i = 0; i < PORT_EQ_COUNT; i++) {
+
+		if (!data->initialized ||
+		    data->filters[i].gain != *data->ports[PORT_EQ_FIRST+i]) {
+
+			biquad_filter_init(data->filters+i,
+					   types[i],
+					   data->sample_rate,
+					   frequencies[i],
+					   widths[i],
+					   *data->ports[PORT_EQ_FIRST+i]);
+		}
+	}
+	data->initialized = true;
+
+	run_filters(data, data->left_input, data->left_output, 0, (size_t)nsamples);
+	run_filters(data, data->right_input, data->right_output, 0, (size_t)nsamples);
 
 	/* output processing */
 	adjust_gain(data->left_output, data->left_output, *data->output_gain, nsamples);
