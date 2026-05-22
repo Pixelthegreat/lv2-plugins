@@ -7,6 +7,7 @@ These are some of my LV2 audio plugins and effects. The recommended programs to 
 | clipper     | Clipper                     | A basic clipper with support for hard and soft clipping.                                                      |
 | delay       | Delay                       | A delay with a controllable time and feedback.                                                                |
 | eq4bp       | 4-Band Parametric Equalizer | A parametric equalizer with 4 bands: One low-shelf filter, two bell / peak filters and one high-shelf filter. |
+| herb        | Reverb                      | A simple reverb based around a design by Geraint Luff.                                                        |
 | mixer-strip | Mixer Strip                 | A basic mixer strip with gain, pan and an equalizer.                                                          |
 
 # Building and Installing

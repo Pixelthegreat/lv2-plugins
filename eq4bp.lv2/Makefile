@@ -2,10 +2,6 @@ include ../common.mk
 
 NAME=eq4bp
 
-PLUGIN_CFLAGS += $(BUILD_BIQUAD)
-PLUGIN_LDFLAGS += $(LINK_BIQUAD)
-PLUGIN_DEPENDS += ../biquad/libbiquad.a
-
 SOURCES += eq4bp.c
 UI_SOURCES += eq4bp-ui.c
 

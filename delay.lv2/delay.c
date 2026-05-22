@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <lv2/core/lv2.h>
+#include "delay.h"
 
 #define DELAY_URI "http://fanfavoritessofar.com/delay"
 
@@ -21,8 +22,6 @@ enum {
 	PORT_COUNT,
 };
 
-#define DELAY_SAMPLES 9600
-
 struct port_data {
 	union {
 		struct {
@@ -36,12 +35,8 @@ struct port_data {
 		const float *ports[PORT_COUNT];
 	};
 	float sample_rate;
-	float current_delay;
-	size_t current_sample_delay;
-	struct {
-		float data[DELAY_SAMPLES];
-		size_t start, end;
-	} buffers[2]; /* one buffer per channel */
+	float current_time;
+	delay_t delays[2];
 };
 
 /* create instance */
@@ -52,6 +47,22 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
 	memset(data, 0, sizeof(struct port_data));
 
 	data->sample_rate = (float)rate;
+
+	delay_init(
+		&data->delays[0],
+		data->sample_rate,
+		0.01f,
+		0.1f,
+		1.f
+	);
+	delay_init(
+		&data->delays[1],
+		data->sample_rate,
+		0.01f,
+		0.1f,
+		1.f
+	);
+	data->current_time = 10.f;
 
 	return (LV2_Handle)data;
 }
@@ -81,19 +92,11 @@ static void delay(struct port_data *pdata, float *output,
 		  const float *input, size_t count, int channel,
 		  float input_gain, float output_gain) {
 
-	for (uint32_t i = 0; i < count; i++) {
-
-		output[i] = input[i] * input_gain;
-
-		output[i] += pdata->buffers[channel].data[pdata->buffers[channel].end++] *
-			     (*pdata->feedback);
-		pdata->buffers[channel].data[pdata->buffers[channel].start++] = output[i];
-
-		output[i] *= output_gain;
-
-		pdata->buffers[channel].start %= DELAY_SAMPLES;
-		pdata->buffers[channel].end %= DELAY_SAMPLES;
-	}
+	for (uint32_t i = 0; i < count; i++)
+		output[i] = delay_process_sample(
+				&pdata->delays[channel],
+				input[i] * input_gain
+			) * output_gain;
 }
 
 /* run instance */
@@ -101,24 +104,19 @@ static void run(LV2_Handle instance, uint32_t nsamples) {
 
 	struct port_data *pdata = (struct port_data *)instance;
 
-	if (pdata->current_delay != *pdata->time) {
+	if (pdata->current_time != *pdata->time) {
 
-		pdata->current_delay = *pdata->time;
+		pdata->current_time = *pdata->time;
 
-		size_t sample_delay = (size_t)(pdata->sample_rate * (*pdata->time)) / 1000;
-		if (sample_delay && sample_delay < DELAY_SAMPLES-1) {
-
-			pdata->current_sample_delay = sample_delay;
-			for (size_t i = 0; i < 2; i++) {
-
-				pdata->buffers[i].start = 0;
-				pdata->buffers[i].end = sample_delay;
-			}
-		}
+		delay_set_time(&pdata->delays[0], *pdata->time / 1000.f);
+		delay_set_time(&pdata->delays[1], *pdata->time / 1000.f);
 	}
 
 	float input_gain = DB_CO(*pdata->input_gain); /* convert from dB to scalar */
 	float output_gain = DB_CO(*pdata->output_gain);
+
+	delay_set_feedback(&pdata->delays[0], *pdata->feedback);
+	delay_set_feedback(&pdata->delays[1], *pdata->feedback);
 
 	delay(pdata, pdata->left_output, pdata->left_input,
 	      (size_t)nsamples, 0, input_gain, output_gain);

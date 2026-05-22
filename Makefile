@@ -1,7 +1,7 @@
 include common.mk
 
-PLUGINS=bitcrusher clipper delay eq4bp mixer-strip
-LIBRARIES=ui biquad
+PLUGINS=bitcrusher clipper delay eq4bp herb mixer-strip
+LIBRARIES=ui plugplug
 
 CLEAN_PLUGINS=$(foreach plugin,$(PLUGINS),clean_$(plugin))
 CLEAN_LIBRARIES=$(foreach library,$(LIBRARIES),clean_$(library))

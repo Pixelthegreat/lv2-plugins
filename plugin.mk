@@ -4,6 +4,11 @@
 CC ?= cc
 CFLAGS += -c -fPIC
 LDFLAGS += -shared -lm
+
+PLUGIN_CFLAGS += $(BUILD_PLUGPLUG)
+PLUGIN_LDFLAGS += $(LINK_PLUGPLUG)
+PLUGIN_DEPENDS += ../plugplug/libplugplug.a
+
 UI_CFLAGS += $(BUILD_UI)
 UI_LDFLAGS += $(LINK_UI)
 UI_DEPENDS += ../ui/libui.a
