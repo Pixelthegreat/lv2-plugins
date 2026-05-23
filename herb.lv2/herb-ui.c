@@ -27,7 +27,7 @@ static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_HORIZONTAL, {
 
 			UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 				UI_LABEL_INIT("Feedback"),
-				UI_DIAL_INIT(0.1f, 0.1f, 0.9f,
+				UI_DIAL_INIT(0.1f, 0.1f, 0.99f,
 					     .color = UI_COLOR_INDEX_ACCENT_SUMMER_GREEN,
 					     .radius = UI_DIAL_RADIUS_LARGE,
 					     .base.port = 4),
@@ -35,7 +35,7 @@ static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_HORIZONTAL, {
 			}),
 			UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 				UI_LABEL_INIT("Dry"),
-				UI_DIAL_INIT(-90.f, 1.f, 0,
+				UI_DIAL_INIT(-90.f, 1.f, 12.f,
 					     .color = UI_COLOR_INDEX_ACCENT_SUMMER_GREEN,
 					     .radius = UI_DIAL_RADIUS_LARGE,
 					     .unit = UI_UNIT_DB,
@@ -44,7 +44,7 @@ static ui_element_t *root_element = UI_BOX_INIT(UI_ORIENTATION_HORIZONTAL, {
 			}),
 			UI_BOX_INIT(UI_ORIENTATION_VERTICAL, {
 				UI_LABEL_INIT("Wet"),
-				UI_DIAL_INIT(-90.f, 1.f, 0,
+				UI_DIAL_INIT(-90.f, 1.f, 12.f,
 					     .color = UI_COLOR_INDEX_ACCENT_SUMMER_GREEN,
 					     .radius = UI_DIAL_RADIUS_LARGE,
 					     .unit = UI_UNIT_DB,

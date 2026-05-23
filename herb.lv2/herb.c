@@ -12,6 +12,65 @@
 
 #define HERB_URI "http://fanfavoritessofar.com/herb"
 
+/*
+ * Fixed timing info:
+ *
+ * The random generation for the timing info can at
+ * times produce great results, and at others produce
+ * lackluster results. Sometimes the reverb can sound
+ * very fluttery and bright, and others it may sound
+ * smooth and dark. These fixed timings are selected
+ * as the best out of five ear tests, primarily aiming
+ * to eliminate a fluttery sound. I believe it is
+ * caused by the delay timings being too close, thus
+ * causing a buildup of sound in some delay ranges and
+ * a lack in others. Repeated shuffle values may also
+ * contribute.
+ */
+#define CHANNELS 2
+#define DELAYS 8
+#define STEPS 4
+
+#define HERB_USE_FIXED_TIMING 1
+
+#ifdef HERB_USE_FIXED_TIMING
+#if HERB_USE_FIXED_TIMING == 0
+static float fixed_times[DELAYS] = {
+	0.085109f,
+	0.133790f,
+	0.326883f,
+	0.413487f,
+	0.538241f,
+	0.735239f,
+	0.864482f,
+	0.970403f,
+};
+static bool fixed_inverts[DELAYS] = {
+	0, 0, 0, 1, 1, 1, 0, 1,
+};
+static size_t fixed_shuffles[DELAYS] = {
+	1, 2, 0, 7, 5, 4, 6, 3,
+};
+#elif HERB_USE_FIXED_TIMING == 1
+static float fixed_times[DELAYS] = {
+	0.088442f,
+	0.215711f,
+	0.272672f,
+	0.448863f,
+	0.448863f,
+	0.688262f,
+	0.811354f,
+	0.878923f,
+};
+static bool fixed_inverts[DELAYS] = {
+	0, 1, 1, 1, 0, 0, 1, 0,	
+};
+static size_t fixed_shuffles[DELAYS] = {
+	7, 0, 1, 6, 4, 2, 5, 3,
+};
+#endif
+#endif
+
 /* ports */
 enum {
 	PORT_LEFT_INPUT = 0,
@@ -28,10 +87,6 @@ enum {
 
 	PORT_COUNT,
 };
-
-#define CHANNELS 2
-#define DELAYS 8
-#define STEPS 4
 
 struct channel {
 	size_t index;
@@ -82,12 +137,18 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
 
 	data->sample_rate = (float)rate;
 
-	data->hadamard_scale = sqrt(1.f / (size_t)DELAYS);
+	data->hadamard_scale = sqrt(1.f / (float)DELAYS);
 
 	/* get delay times and other random values */
+	float times[DELAYS];
+
+#ifdef HERB_USE_FIXED_TIMING
+	memcpy(times, fixed_times, sizeof(times));
+	memcpy(data->inverts, fixed_inverts, sizeof(data->inverts));
+	memcpy(data->shuffles, fixed_shuffles, sizeof(data->shuffles));
+#else
 	srand((unsigned int)time(NULL));
 
-	float times[DELAYS];
 	for (size_t i = 0; i < DELAYS; i++) {
 
 		float low = (float)i * 1.f / (float)DELAYS;
@@ -95,8 +156,12 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
 
 		times[i] = rand_float(low, high);
 
+		printf("(time) %f\n", times[i]);
+
 		data->inverts[i] = (bool)(rand() % 2);
 		data->shuffles[i] = i;
+
+		printf("(invert) %d\n", data->inverts[i]);
 	}
 
 	for (size_t i = 0; i < DELAYS; i++) {
@@ -108,6 +173,10 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
 		data->shuffles[k] ^= data->shuffles[j];
 		data->shuffles[j] ^= data->shuffles[k];
 	}
+
+	for (size_t i = 0; i < DELAYS; i++)
+		printf("(shuffle) %zu: %zu\n", i, data->shuffles[i]);
+#endif
 
 	/* initialize delays */
 	for (size_t i = 0; i < CHANNELS; i++) {
@@ -194,7 +263,7 @@ static void diffuse(
 	float new_values[DELAYS];
 
 	for (size_t i = 0; i < DELAYS; i++)
-		new_values[pdata->shuffles[i]] = values[i];
+		new_values[i] = values[pdata->shuffles[i]];
 
 	memcpy(values, new_values, sizeof(new_values));
 
@@ -269,6 +338,14 @@ static void process_channel(
 		output[i] = in * dry +
 			    (values[0] + values[1]) / 2.f *
 			    output_gain * wet;
+
+		/*static bool printed = false;
+		if (output[i] > 10.f && !printed) {
+
+			printf("%f\n", output[i]);
+			printed = true;
+		}
+		output[i] = 0;*/
 	}
 }
 
