@@ -68,3 +68,18 @@ extern float delay_process_sample(
 
 	return in * delay->dry + add;
 }
+
+/* process two samples (one for feedback) */
+extern float delay_process_sample2(
+		delay_t *delay,
+		float in_a, float in_b
+) {
+	float add = delay->data[delay->end++] * delay->feedback;
+
+	delay->data[delay->start++] = in_b + add * delay->dry;
+
+	delay->start %= DELAY_SAMPLES;
+	delay->end %= DELAY_SAMPLES;
+
+	return in_a * delay->dry + add;
+}

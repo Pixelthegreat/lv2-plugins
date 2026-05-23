@@ -16,6 +16,14 @@ extern void matrix_mulsv(
 );
 
 /*
+ * Perform Householder matrix calculation
+ */
+extern void matrix_mul_householder(
+		float *vector,
+		size_t width
+);
+
+/*
  * Perform Hadamard matrix calculation
  */
 extern void matrix_mul_hadamard(

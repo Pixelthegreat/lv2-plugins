@@ -23,6 +23,8 @@ enum {
 	PORT_WET,
 	PORT_INPUT_GAIN,
 	PORT_OUTPUT_GAIN,
+	PORT_LOW_CUT,
+	PORT_HIGH_CUT,
 
 	PORT_COUNT,
 };
@@ -32,6 +34,7 @@ enum {
 #define STEPS 4
 
 struct channel {
+	size_t index;
 	delay_t delays[DELAYS * STEPS];
 	delay_t mix_delays[DELAYS];
 };
@@ -44,14 +47,19 @@ struct port_data {
 			const float *feedback;
 			const float *dry, *wet;
 			const float *input_gain, *output_gain;
+			const float *low_cut, *high_cut;
 		} __attribute__((packed));
 		const float *ports[PORT_COUNT];
 	};
 	float sample_rate;
 	struct channel channels[CHANNELS];
+
 	size_t shuffles[DELAYS];
 	bool inverts[DELAYS];
 	float hadamard_scale;
+
+	biquad_filter_t low_cut_filters[DELAYS];
+	biquad_filter_t high_cut_filters[DELAYS];
 };
 
 /* get floating point random value */
@@ -82,7 +90,11 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
 	float times[DELAYS];
 	for (size_t i = 0; i < DELAYS; i++) {
 
-		times[i] = rand_float01();
+		float low = (float)i * 1.f / (float)DELAYS;
+		float high = low + 1.f / (float)DELAYS;
+
+		times[i] = rand_float(low, high);
+
 		data->inverts[i] = (bool)(rand() % 2);
 		data->shuffles[i] = i;
 	}
@@ -101,6 +113,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
 	for (size_t i = 0; i < CHANNELS; i++) {
 
 		struct channel *channel = data->channels+i;
+		channel->index = i;
 
 		for (size_t j = 0; j < DELAYS; j++) {
 
@@ -129,6 +142,22 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
 		}
 	}
 
+	/* initialize filters */
+	for (size_t i = 0; i < DELAYS; i++) {
+
+		biquad_filter_init(
+				data->low_cut_filters+i,
+				BIQUAD_FILTER_TYPE_LOW_SHELF,
+				data->sample_rate,
+				1.f, 0.707f, -36.f
+		);
+		biquad_filter_init(
+				data->high_cut_filters+i,
+				BIQUAD_FILTER_TYPE_HIGH_SHELF,
+				data->sample_rate,
+				20000.f, 0.707f, -36.f
+		);
+	}
 	return (LV2_Handle)data;
 }
 
@@ -187,6 +216,9 @@ static void process_channel(
 		float output_gain,
 		size_t count
 ) {
+	bool do_low_cut = *pdata->low_cut > 2.f;
+	bool do_high_cut = *pdata->high_cut < 19999.f;
+
 	for (size_t i = 0; i < count; i++) {
 
 		float in = input[i];
@@ -199,11 +231,39 @@ static void process_channel(
 		for (size_t j = 0; j < STEPS; j++)
 			diffuse(pdata, channel, values, j);
 
-		for (size_t j = 0; j < DELAYS; j++)
-			values[j] = delay_process_sample(
+		/* mix channels using the householder matrix */
+		float hh_values[DELAYS];
+		memcpy(hh_values, values, sizeof(hh_values));
+
+		matrix_mul_householder(
+				hh_values,
+				DELAYS
+		);
+
+		/* perform filter operations and final delays */
+		for (size_t j = 0; j < DELAYS; j++) {
+
+			float feed = hh_values[j];
+
+			if (do_low_cut)
+				feed = biquad_filter_process_sample(
+						pdata->low_cut_filters+j,
+						channel->index,
+						feed
+				);
+			if (do_high_cut)
+				feed = biquad_filter_process_sample(
+						pdata->high_cut_filters+j,
+						channel->index,
+						feed
+				);
+
+			values[j] = delay_process_sample2(
 					channel->mix_delays+j,
-					values[j]
+					values[j],
+					feed
 			);
+		}
 
 		/* sum values */
 		output[i] = in * dry +
@@ -235,6 +295,29 @@ static void run(LV2_Handle instance, uint32_t nsamples) {
 	float wet = DB_CO(*pdata->wet);
 	float input_gain = DB_CO(*pdata->input_gain);
 	float output_gain = DB_CO(*pdata->output_gain);
+
+	/* set filter parameters */
+	if (pdata->low_cut_filters[0].frequency != *pdata->low_cut) {
+
+		for (size_t i = 0; i < DELAYS; i++)
+			biquad_filter_init(
+					pdata->low_cut_filters+i,
+					BIQUAD_FILTER_TYPE_LOW_SHELF,
+					pdata->sample_rate,
+					*pdata->low_cut, 0.707f, -36.f
+			);
+	}
+
+	if (pdata->high_cut_filters[0].frequency != *pdata->high_cut) {
+
+		for (size_t i = 0; i < DELAYS; i++)
+			biquad_filter_init(
+					pdata->high_cut_filters+i,
+					BIQUAD_FILTER_TYPE_HIGH_SHELF,
+					pdata->sample_rate,
+					*pdata->high_cut, 0.707f, -36.f
+			);
+	}
 
 	/* process audio channels */
 	process_channel(

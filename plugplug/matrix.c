@@ -19,6 +19,23 @@ extern void matrix_mulsv(
 	}
 }
 
+/* perform householder matrix calculation */
+extern void matrix_mul_householder(
+		float *vector,
+		size_t width
+) {
+	float scale = -2.f / (float)width;
+
+	float sum = 0;
+	for (size_t i = 0; i < width; i++)
+		sum += vector[i];
+
+	sum *= scale;
+
+	for (size_t i = 0; i < width; i++)
+		vector[i] += sum;
+}
+
 /* perform hadamard matrix calculation */
 extern void matrix_mul_hadamard(
 		float *vector,

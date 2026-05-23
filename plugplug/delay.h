@@ -63,4 +63,9 @@ extern float delay_process_sample(
 		float in
 );
 
+extern float delay_process_sample2(
+		delay_t *delay,
+		float in_a, float in_b
+);
+
 #endif /* DELAY_H */
