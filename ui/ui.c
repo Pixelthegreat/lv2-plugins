@@ -260,18 +260,92 @@ ui_element_ops_t ui_element_ops_separator = {
 };
 
 /* button element */
+#define BUTTON_MARGIN 2
+#define BUTTON_BORDER 2
+
 static void button_calculate_size(ui_element_t *element) {
 
-	element->width = DEFAULT_TEXT_WIDTH;
-	element->height = DEFAULT_TEXT_HEIGHT;
+	element->width = DEFAULT_TEXT_WIDTH+BUTTON_MARGIN*2;
+	element->height = DEFAULT_TEXT_HEIGHT+BUTTON_MARGIN*2;
+}
+
+static void button_remote_set_value(ui_element_t *element, float value) {
+
+	ui_button_t *button = UI_BUTTON(element);
+
+	button->f_index = value;
+	button->index = (size_t)value;
+}
+
+static bool button_process_event(ui_element_t *element,
+				 ui_event_t *event,
+				 ui_window_t *window) {
+
+	bool prop = false;
+	ui_button_t *button = UI_BUTTON(element);
+
+	/* set next */
+	if (event->type == UI_EVENT_TYPE_BUTTON && event->button.pressed &&
+	    ui_element_contains(element, event->button.x, event->button.y)) {
+
+		window->draw_window = true;
+
+		if (!button->enumeration[++button->index])
+			button->index = 0;
+		button->f_index = (float)button->index;
+
+		ui_send_port_event(window, (uint32_t)element->port,
+				   sizeof(float), 0, &button->f_index);
+	}
+
+	else prop = true;
+	return prop;
 }
 
 static void button_draw(ui_element_t *element, ui_window_t *window) {
+
+	ui_button_t *button = UI_BUTTON(element);
+
+	/* draw background and border */
+	set_color(window->cr, button->color);
+	cairo_rectangle(window->cr,
+			(double)element->absx,
+			(double)element->absy,
+			(double)element->width,
+			(double)element->height);
+	cairo_fill(window->cr);
+
+	set_color(window->cr, button->color+1);
+	cairo_set_line_width(window->cr, BUTTON_BORDER);
+	cairo_rectangle(window->cr,
+			(double)element->absx + BUTTON_BORDER / 2.0,
+			(double)element->absy + BUTTON_BORDER / 2.0,
+			(double)element->width - BUTTON_BORDER / 2.0,
+			(double)element->height - BUTTON_BORDER / 2.0);
+	cairo_stroke(window->cr);
+
+	/* draw text */
+	const char *text = button->enumeration[button->index];
+
+	cairo_text_extents_t extents;
+	cairo_text_extents(window->cr, text, &extents);
+
+	int width = (int)extents.width;
+	int height = (int)extents.height;
+
+	int x = element->absx + (element->width - width) / 2;
+	int y = element->absy + (element->height - height) / 2;
+
+	set_color(window->cr, UI_COLOR_INDEX_LIGHT3);
+	cairo_move_to(window->cr, (double)x, (double)y + window->font_extents.height);
+	cairo_show_text(window->cr, text);
 }
 
 ui_element_ops_t ui_element_ops_button = {
 	.size = sizeof(ui_button_t),
 	.calculate_size = button_calculate_size,
+	.remote_set_value = button_remote_set_value,
+	.process_event = button_process_event,
 	.draw = button_draw,
 };
 
@@ -316,6 +390,10 @@ static const char *get_slider_value_format(float *position, float step, ui_unit_
 				return "%.1f L";
 			}
 			return "%.1f R";
+
+		/* time (s) */
+		case UI_UNIT_S:
+			return "%.1f s";
 	}
 	return ignore_decimal? "%.0f": "%.3f";
 }

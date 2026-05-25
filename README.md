@@ -4,6 +4,7 @@ These are some of my LV2 audio plugins and effects. The recommended programs to 
 | Name        | Short Description           | Full Description                                                                                              |
 |-------------|-----------------------------|---------------------------------------------------------------------------------------------------------------|
 | bitcrusher  | Bitcrusher                  | A bitcrusher that simulates a low quality resampling algorithm and bit rate quantization.                     |
+| chiptune    | ChipTune Synth              | A simple but versatile chiptune synthesizer.                                                                  |
 | clipper     | Clipper                     | A basic clipper with support for hard and soft clipping.                                                      |
 | delay       | Delay                       | A delay with a controllable time and feedback.                                                                |
 | eq4bp       | 4-Band Parametric Equalizer | A parametric equalizer with 4 bands: One low-shelf filter, two bell / peak filters and one high-shelf filter. |

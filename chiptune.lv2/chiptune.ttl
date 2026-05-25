@@ -1,0 +1,111 @@
+@prefix doap:  <http://usefulinc.com/ns/doap#> .
+@prefix lv2:   <http://lv2plug.in/ns/lv2core#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix units: <http://lv2plug.in/ns/extensions/units#> .
+@prefix ui:    <http://lv2plug.in/ns/extensions/ui#> .
+@prefix atom:  <http://lv2plug.in/ns/ext/atom#> .
+@prefix midi:  <http://lv2plug.in/ns/ext/midi#> .
+@prefix urid:  <http://lv2plug.in/ns/ext/urid#> .
+
+<http://fanfavoritessofar.com/chiptune>
+	a lv2:Plugin ,
+		lv2:MidiPlugin ,
+		lv2:InstrumentPlugin ;
+	lv2:project <http://fanfavoritessofar.com/chiptune> ;
+	doap:name "ChipTune" ;
+	lv2:requiredFeature urid:map ;
+	lv2:optionalFeature lv2:hardRTCapable ;
+	ui:ui <http://fanfavoritessofar.com/chiptune#ui-x11> ;
+	lv2:port [
+		a lv2:AudioPort ,
+			lv2:InputPort ;
+		lv2:index 0 ;
+		lv2:symbol "input" ;
+		lv2:name "Input"
+	] , [
+		a lv2:AudioPort ,
+			lv2:OutputPort ;
+		lv2:index 1 ;
+		lv2:symbol "output" ;
+		lv2:name "Output"
+	] , [
+		a lv2:InputPort ,
+			atom:AtomPort ;
+		atom:bufferType atom:Sequence ;
+		atom:supports atom:Sequence , midi:MidiEvent ;
+		lv2:designation lv2:control ;
+		lv2:index 2 ;
+		lv2:symbol "midiControl" ;
+		lv2:name "Midi Control"
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 3 ;
+		lv2:symbol "waveType" ;
+		lv2:name "Wave Type" ;
+		lv2:default 1.0 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 3.0 ;
+		lv2:portProperty lv2:integer
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 4 ;
+		lv2:symbol "dutyCycle" ;
+		lv2:name "Duty Cycle (Square waves only)" ;
+		lv2:default 0.0 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 2.0 ;
+		lv2:portProperty lv2:integer
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 5 ;
+		lv2:symbol "adsrEnable" ;
+		lv2:name "Enable ADSR Envelope" ;
+		lv2:default 0.0 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 1.0 ;
+		lv2:portProperty lv2:integer
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 6 ;
+		lv2:symbol "attack" ;
+		lv2:name "Attack" ;
+		lv2:default 0.1 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 2.0 ;
+		units:unit units:s
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 7 ;
+		lv2:symbol "decay" ;
+		lv2:name "Decay" ;
+		lv2:default 0.2 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 2.0 ;
+		units:unit units:s
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 8 ;
+		lv2:symbol "sustain" ;
+		lv2:name "Sustain" ;
+		lv2:default 2.0 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 2.0 ;
+		units:unit units:s
+	] , [
+		a lv2:InputPort ,
+			lv2:ControlPort ;
+		lv2:index 9 ;
+		lv2:symbol "release" ;
+		lv2:name "Release" ;
+		lv2:default 0.1 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 2.0 ;
+		units:unit units:s
+	] .

@@ -59,6 +59,7 @@ typedef enum ui_unit {
 	UI_UNIT_FREQUENCY,
 	UI_UNIT_MS,
 	UI_UNIT_PANORAMA,
+	UI_UNIT_S,
 
 	UI_UNIT_COUNT,
 } ui_unit_t;
@@ -177,15 +178,20 @@ extern ui_element_ops_t ui_element_ops_separator;
 
 typedef struct ui_button {
 	ui_element_t base;
-	char text[UI_BUTTON_TEXT_SIZE];
+	size_t index;
+	float f_index;
+	const char **enumeration;
+	ui_color_index_t color;
 } ui_button_t;
 
 extern ui_element_ops_t ui_element_ops_button;
 
 #define UI_BUTTON(p) ((ui_button_t *)(p))
-#define UI_BUTTON_INIT(p_text, ...) (ui_element_t *)(ui_button_t []){{\
+#define UI_BUTTON_INIT(p_enumeration, ...) (ui_element_t *)(ui_button_t []){{\
 	.base = UI_ELEMENT_INIT(&ui_element_ops_button),\
-	.text = (p_text),\
+	.index = 0,\
+	.enumeration = (p_enumeration),\
+	.color = UI_COLOR_INDEX_LIGHT2,\
 	__VA_ARGS__\
 }}
 

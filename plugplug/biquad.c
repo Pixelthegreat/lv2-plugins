@@ -116,6 +116,16 @@ extern void biquad_filter_set_parameters(biquad_filter_t *filter,
 				b2 = (V - sqrtf(2.f * V) * K + K * K) * norm;
 			}
 			break;
+
+		/* low pass */
+		case BIQUAD_FILTER_TYPE_LOW_PASS:
+			norm = 1.f / (1.f + K / width + K * K);
+			a0 = K * K * norm;
+			a1 = 2.f * a0;
+			a2 = a0;
+			b1 = 2.f * (K * K - 1.f) * norm;
+			b2 = (1.f - K / width + K * K) * norm;
+			break;
 	}
 
 	filter->a0 = a0;
